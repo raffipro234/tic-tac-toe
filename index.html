@@ -1,0 +1,353 @@
+
+
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe - By SennOffc</title>
+    <style>
+      /* --- credit By Ziyoffc --- 
+   Contac:
+   https://t.me/SennMieAyam 
+   
+   
+   
+   
+   
+   */
+    
+        :root {
+            --bg: #050505;
+            --glass: rgba(255, 255, 255, 0.05);
+            --neon-x: #00f2ff;
+            --neon-o: #ff007b;
+            --text: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+
+        body {
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Background Animated Particles (CSS Only) */
+        body::before {
+            content: "";
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image: radial-gradient(var(--glass) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: move 100s linear infinite;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        @keyframes move { from { transform: translate(0,0); } to { transform: translate(-50%, -50%); } }
+
+        .container {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            padding: 2rem;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            text-align: center;
+            position: relative;
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .score-box { padding: 10px 20px; border-radius: 15px; background: rgba(0,0,0,0.3); }
+        .score-x { color: var(--neon-x); border-bottom: 3px solid var(--neon-x); }
+        .score-o { color: var(--neon-o); border-bottom: 3px solid var(--neon-o); }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            background: linear-gradient(to right, var(--neon-x), var(--neon-o));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+        }
+
+        .status {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            height: 30px;
+        }
+
+        /* Papan Board */
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            gap: 15px;
+            margin: 0 auto;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.02);
+            border: 2px solid rgba(255,255,255,0.05);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cell:hover {
+            background: rgba(255,255,255,0.1);
+            transform: scale(1.05) translateY(-5px);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .cell.x { color: var(--neon-x); text-shadow: 0 0 20px var(--neon-x); }
+        .cell.o { color: var(--neon-o); text-shadow: 0 0 20px var(--neon-o); }
+
+        .cell.winner {
+            background: white !important;
+            color: black !important;
+            text-shadow: none !important;
+            transform: scale(1.1);
+        }
+
+        /* Controls */
+        .controls { margin-top: 30px; }
+        
+        button {
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            background: white;
+            color: black;
+            transition: 0.3s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        button:hover {
+            transform: scale(1.1);
+            letter-spacing: 2px;
+            background: var(--neon-x);
+        }
+
+        /* Konfeti Canvas */
+        #confetti {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti"></canvas>
+
+    <div class="container">
+        <h1>Tic Tac Toe</h1>
+        
+        <div class="scoreboard">
+            <div class="score-box score-x">Pemain X: <span id="val-x">0</span></div>
+            <div class="score-box score-o">Pemain O: <span id="val-o">0</span></div>
+        </div>
+
+        <div class="status" id="status">Giliran X</div>
+
+        <div class="board" id="board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+
+        <div class="controls">
+            <button onclick="resetGame()">Reset Game</button>
+        </div>
+    </div>
+
+    <script>
+        /* --- JS LOGIC & AUDIO --- */
+        const cells = document.querySelectorAll('.cell');
+        const statusTxt = document.getElementById('status');
+        const xScoreDisplay = document.getElementById('val-x');
+        const oScoreDisplay = document.getElementById('val-o');
+        
+        let currentPlayer = "X";
+        let scores = { X: 0, O: 0 };
+        let options = ["", "", "", "", "", "", "", "", ""];
+        let running = true;
+
+        const winConditions = [
+            [0,1,2], [3,4,5], [6,7,8],
+            [0,3,6], [1,4,7], [2,5,8],
+            [0,4,8], [2,4,6]
+        ];
+
+        // Synthesizer Sound Function (No mp3 files needed!)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(freq, type = 'sine', duration = 0.1) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        initializeGame();
+
+        function initializeGame(){
+            cells.forEach(cell => cell.addEventListener('click', cellClicked));
+            statusTxt.textContent = `Giliran ${currentPlayer}`;
+        }
+
+        function cellClicked(){
+            const index = this.getAttribute("data-index");
+            if(options[index] != "" || !running) return;
+
+            updateCell(this, index);
+            checkWinner();
+        }
+
+        function updateCell(cell, index){
+            options[index] = currentPlayer;
+            cell.textContent = currentPlayer;
+            cell.classList.add(currentPlayer.toLowerCase());
+            
+            // Suara Klik
+            playSound(currentPlayer === "X" ? 440 : 554, 'triangle');
+        }
+
+        function changePlayer(){
+            currentPlayer = (currentPlayer == "X") ? "O" : "X";
+            statusTxt.textContent = `Giliran ${currentPlayer}`;
+        }
+
+        function checkWinner(){
+            let roundWon = false;
+            let winCombo = [];
+
+            for(let i=0; i < winConditions.length; i++){
+                const condition = winConditions[i];
+                const cellA = options[condition[0]];
+                const cellB = options[condition[1]];
+                const cellC = options[condition[2]];
+
+                if(cellA == "" || cellB == "" || cellC == "") continue;
+                if(cellA == cellB && cellB == cellC){
+                    roundWon = true;
+                    winCombo = condition;
+                    break;
+                }
+            }
+
+            if(roundWon){
+                statusTxt.innerHTML = `<b style="color:white">PEMAIN ${currentPlayer} MENANG! 🎉</b>`;
+                scores[currentPlayer]++;
+                updateScoreboard();
+                highlightWinner(winCombo);
+                running = false;
+                startConfetti();
+                playSound(880, 'sine', 0.5); // Win sound
+            } else if(!options.includes("")){
+                statusTxt.textContent = `Seri! 🤝`;
+                running = false;
+                playSound(200, 'sawtooth', 0.3);
+            } else {
+                changePlayer();
+            }
+        }
+
+        function highlightWinner(combo){
+            combo.forEach(idx => cells[idx].classList.add('winner'));
+        }
+
+        function updateScoreboard(){
+            xScoreDisplay.textContent = scores.X;
+            oScoreDisplay.textContent = scores.O;
+        }
+
+        function resetGame(){
+            currentPlayer = "X";
+            options = ["", "", "", "", "", "", "", "", ""];
+            statusTxt.textContent = `Giliran X`;
+            cells.forEach(cell => {
+                cell.textContent = "";
+                cell.classList.remove('x', 'o', 'winner');
+            });
+            running = true;
+            stopConfetti();
+        }
+
+        /* --- CONFETTI SYSTEM --- */
+        const canvas = document.getElementById('confetti');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function startConfetti() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            for(let i=0; i<100; i++) {
+                particles.push({
+                    x: Math.random()*canvas.width,
+                    y: Math.random()*canvas.height - canvas.height,
+                    size: Math.random()*10 + 5,
+                    color: `hsl(${Math.random()*360}, 100%, 50%)`,
+                    vel: Math.random()*3 + 2
+                });
+            }
+            animateConfetti();
+        }
+
+        function animateConfetti() {
+            if(!particles.length) return;
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            particles.forEach((p, i) => {
+                p.y += p.vel;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+                if(p.y > canvas.height) particles.splice(i, 1);
+            });
+            requestAnimationFrame(animateConfetti);
+        }
+
+        function stopConfetti() { particles = []; ctx.clearRect(0,0,canvas.width, canvas.height); }
+
+    </script>
+</body>
+</html>
